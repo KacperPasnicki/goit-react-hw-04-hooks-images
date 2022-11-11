@@ -1,6 +1,6 @@
 import axios from "axios";
 const KEY = '29532345-deb84d68428e9d4fffb51e10d'
-// const URL =`https://pixabay.com/api/?key=${KEY}&q=yellow+flowers&image+type=photo`
+const URL =`https://pixabay.com/api/?key=${KEY}&q=yellow+flowers&image+type=photo`
 
 // axios.defaults.baseURL = 
 // 'https://pixabay.com/api/?key=29532345-deb84d68428e9d4fffb51e10d'

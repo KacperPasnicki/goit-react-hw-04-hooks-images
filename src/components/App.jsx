@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 
 import { Searchbar } from "./Searchbar/Searchbar";
 
@@ -10,141 +10,124 @@ import { Button } from './Button/Button';
 import {API} from './API/API'
 import { Loader } from './Loader/Loader';
 
+// const API_URL=`https://pixabay.com/api/?key=${KEY}&q=pokemon&image+type=photo&page=${page}&per_page=${per_page}`
+
 // const KEY = '29532345-deb84d68428e9d4fffb51e10d'
 // const URL =`https://pixabay.com/api/?key=${KEY}&q=yellow+flowers&image+type=photo`
 
-const INITIAL_STATE = {
-  images: [],
-      isLoading: false,
-        error: null,
-        isOpen:false,
-        modalImg: '',
-        page: 1,
+// const INITIAL_STATE = {
+//   images: [],
+//       isLoading: false,
+//         error: null,
+//         isOpen:false,
+//         modalImg: '',
+//         page: 1,
         
-        searchValue: ''
+//         searchValue: ''
 
-    };
+//     };
   
-export class App extends React.Component {
-  state = { ...INITIAL_STATE };
+export const App = () => {
+  const [images, setImages] = useState([]);
+  const [query, setQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [isOpen, setIsOpen] = useState(false);
+  const [modalImg, setModalImg] = useState('');
 
+
+  useEffect(() => {
+    // fetch(API_URL).then(res=>res.json())
+    // .then(data => {
+    //   console.log(data)
+    //   setImages(data.results)
+    // })
+    const fetchData = async () => {
+    const data = await API(query, page, 12)
+  }
+  fetchData()
+  .catch(console.error)
+  },[])
+  
 
   
- async componentDidUpdate(prevProps, prevState)
+ const searchMovie  = async(e) =>
  
- {
 
-    if (prevState.page !== this.state.page || prevState.searchValue !== this.state.searchValue) 
+
+    // if (page !== this.state.page || prevState.searchValue !== this.state.searchValue) 
     
     { 
-      this.setState({ isLoading: true });
+      e.preventDefault();
+      setIsLoading(true);
       console.log('componentDidUpdate()')
       try {
         
-      const Api = await API(this.state.searchValue, this.state.page, 12);
- this.setState(({images}) => ({
-        images: [...images, ...Api.hits],
-        errorMsg: ''
-      }));
-    } catch (error) {
-      this.setState({
-        errorMsg: 'Error while loading data. Try again later.'
-      });
-    } finally {
-      this.setState({ isLoading: false });
+      const url = `https://pixabay.com/api/?key={29532345-deb84d68428e9d4fffb51e10d}&q=${query}&image+type=photo&page={1}&per_page={12}`;
+
+      const res = await fetch(url)
+      const data = await res.json()
+      console.log(data);
+      setImages(data.hits)
+      }
+    
+
+    catch (error) {
+      
+        console.log( 'Error while loading data. Try again later.')
+      ;
+    } 
+    finally {
+      setIsLoading(false);
     }
     
   }
   
-}
-async componentDidMount() {
-  console.log('on start')
-  
-  this.setState({ images: [], page: 1 });
-}
 
 
-  openModal = (ID) => {
-    const clicked = this.state.images.filter(image =>
+
+
+ const openModal = (ID) => {
+    const clicked = images.filter(image =>
       {
         console.log('Image clicked')
         return image.id === ID
       }
       )
       const Img = clicked[0]
-      this.setState(state => ({isOpen:true, modalImg: Img}))
+      setIsOpen(true);
+        setModalImg(Img)
+      // this.setState(state => ({isOpen:true, modalImg: Img}))
   }
 
-  handleGetRequest = e => {
+ const handleGetRequest = e => {
     
     e.preventDefault();
     console.log('submit')
     const form = e.currentTarget;
     const inputValue = e.target.elements.inputValue.value
-    this.setState({ images: [], searchValue: inputValue, page: 1 });
+    setQuery(inputValue)
+    setPage(1)
     form.reset();
   };
 
-  closeImg = () => {
-    this.setState({isOpen: false})
+ const closeImg = () => {
+  setIsOpen(false)
   }
  
 
-  nextPage = () => {
-   this.setState({isLoading:true})
+  const nextPage = () => {
+   setIsLoading(true)
     console.log('nextPage()')
     
-     this.setState(({page})=> ({
-      page: page + 1
-    }))}
+    setPage( page +1 )}
    
 
-// handleGetRequest = async (e) => {
-  
-//   const { page } = this.state;
-//   e.preventDefault()
-//   console.log('get API2')
-//   const inputValue = e.target.elements.searchValue.value
-//   const URL =`https://pixabay.com/api/?key=${KEY}&q=${inputValue}&image+type=photo&page=${page}&per_page=12`
-
-//   const request = await fetch(URL)
-//   const response = await request.json()
-
-// this.setState({images: response.hits })
-// console.log(this.state.images)
-// }
-// closeImg = () => {
-//   this.setState({isOpen: false})
-// }
-
-// LoadImages = async (event) => {
-  
-//   try {
-//     const { page } = this.state;
-//     event.preventDefault()
-//     console.log('LoadImages()')
-//     const inputValue = event.target.elements.searchValue.value
-//     this.setState({ isLoading: true });
-//     const response = await axios.get(
-//       `https://pixabay.com/api/?key=${KEY}&q=${inputValue}&image+type=photo&page=${page}&per_page=12`
-//     );
-
-//     this.setState((prevState) => ({
-//       images: [...prevState.hits, ...response.hits],
-//       errorMsg: ''
-//     }));
-//   } catch (error) {
-//     this.setState({
-//       errorMsg: 'Error while loading data. Try again later.'
-//     });
-//   } finally {
-//     this.setState({ isLoading: false });
-//   }
-// };
 
 
-  render() {
-   const {images, modalImg, isOpen, isLoading,  page} = this.state
+
+   
+  //  const {images, modalImg, isOpen, isLoading,  page} = this.state
   return (
     <div
     className='App'
@@ -161,17 +144,17 @@ async componentDidMount() {
       {isOpen ?
    (<Modal 
     
-    closeImg ={this.closeImg}
+    closeImg ={closeImg}
     clickedImg ={modalImg}
     />) : null
   
   }
- <Searchbar handleGetRequest={this.handleGetRequest}/>
+ <Searchbar handleGetRequest={searchMovie}/>
  {isLoading && (page <= 1) ? <Loader/> :null}
  <ImageGallery>
  
     <ImageGalleryItem images={images}
-    onCLick ={this.openModal}
+    onCLick ={openModal}
      loading={isLoading}
     />
     
@@ -179,13 +162,13 @@ async componentDidMount() {
     {
     isLoading && (page >= 2) ? <Loader/> :null  }   
     {images.length === 0 ? null : (
-        <Button nextPage={this.nextPage}/>
+        <Button nextPage={nextPage}/>
           
        
     )}
     </div> 
   );
 };
-}
+
 
 
