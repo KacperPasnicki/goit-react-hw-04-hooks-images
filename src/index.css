@@ -41,6 +41,11 @@ img {
   grid-gap: 16px;
   padding-bottom: 24px;
   background-color: antiquewhite;
+  height: 100%;
+      color: #010101;
+      padding: 50px 10px;
+      justifyContent: space-around;
+
 }
 
 /*

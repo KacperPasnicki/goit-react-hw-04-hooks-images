@@ -7,7 +7,7 @@ import { ImageGalleryItem } from "components/ImageGalleryItem/ImageGalleryItem";
 import { Modal } from './Modal/Modal';
 import { Button } from './Button/Button';
 
-import {API} from './API/API'
+import {useAPI} from './API/API'
 import { Loader } from './Loader/Loader';
 
 // const API_URL=`https://pixabay.com/api/?key=${KEY}&q=pokemon&image+type=photo&page=${page}&per_page=${per_page}`
@@ -28,38 +28,39 @@ import { Loader } from './Loader/Loader';
 //     };
   
 export const App = () => {
-  const [images, setImages] = useState([]);
+  // const [images, setImages] = useState([]);
   const [query, setQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
   const [modalImg, setModalImg] = useState('');
 
+  const {
+    images,
+    error,
+    isLoading,
+    handleLoadingFalse,
+    handleLoadingTrue,
+    clearImages
+  } = useAPI(query, page, 12)
 
   useEffect(() => {
-    // fetch(API_URL).then(res=>res.json())
-    // .then(data => {
-    //   console.log(data)
-    //   setImages(data.results)
-    // })
-    const fetchData = async () => {
-    const data = await API(query, page, 12)
+   
+    const onStart= async () => {
+      
+      setPage(1)
   }
-  fetchData()
+  onStart()
   .catch(console.error)
   },[])
   
 
   
  const searchMovie  = async(e) =>
- 
-
-
-    // if (page !== this.state.page || prevState.searchValue !== this.state.searchValue) 
-    
-    { 
+     // if (page !== this.state.page || prevState.searchValue !== this.state.searchValue) 
+        { 
       e.preventDefault();
-      setIsLoading(true);
+      handleLoadingTrue();
       console.log('componentDidUpdate()')
       try {
         
@@ -68,7 +69,7 @@ export const App = () => {
       const res = await fetch(url)
       const data = await res.json()
       console.log(data);
-      setImages(data.hits)
+      images(data.hits)
       }
     
 
@@ -78,12 +79,11 @@ export const App = () => {
       ;
     } 
     finally {
-      setIsLoading(false);
+      handleLoadingFalse();
     }
     
   }
   
-
 
 
 
@@ -107,7 +107,9 @@ export const App = () => {
     const form = e.currentTarget;
     const inputValue = e.target.elements.inputValue.value
     setQuery(inputValue)
+    clearImages()
     setPage(1)
+    console.log(inputValue)
     form.reset();
   };
 
@@ -117,12 +119,19 @@ export const App = () => {
  
 
   const nextPage = () => {
-   setIsLoading(true)
+    handleLoadingTrue()
+  
     console.log('nextPage()')
-    
+  try {  
     setPage( page +1 )}
-   
-
+  
+  catch (error) {
+    error()
+  }
+  finally {
+    handleLoadingFalse()
+  }
+  }
 
 
 
@@ -131,16 +140,7 @@ export const App = () => {
   return (
     <div
     className='App'
-    style={{
-      height: '100%',
-      color: '#010101',
-      padding: '50px 10px',
-      justifyContent: 'space-around'
-
-
-      
-    }}
-    >
+        >
       {isOpen ?
    (<Modal 
     
@@ -149,7 +149,7 @@ export const App = () => {
     />) : null
   
   }
- <Searchbar handleGetRequest={searchMovie}/>
+ <Searchbar handleGetRequest={handleGetRequest}/>
  {isLoading && (page <= 1) ? <Loader/> :null}
  <ImageGallery>
  
